@@ -1,0 +1,9 @@
+{
+  "name": "extension-analytics",
+  "version": "1.0.0",
+  "description": "Privacy-first analytics for Chrome extensions",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "keywords": ["chrome-extension", "analytics", "privacy", "metrics"],
+  "license": "MIT"
+}
