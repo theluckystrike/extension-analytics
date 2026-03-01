@@ -1,0 +1,57 @@
+{
+    "name": "extension-analytics",
+    "version": "0.1.0",
+    "description": "Privacy-first, lightweight analytics for Chrome extensions. Local-first tracking with optional sync, install events, feature usage, and funnel tracking. No external dependencies.",
+    "author": "Zovo <hello@zovo.one>",
+    "license": "MIT",
+    "keywords": [
+        "chrome-extension",
+        "analytics",
+        "tracking",
+        "privacy-first",
+        "usage-analytics",
+        "extension-analytics",
+        "local-first",
+        "install-tracking",
+        "feature-tracking",
+        "funnel",
+        "manifest-v3"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/theluckystrike/extension-analytics.git"
+    },
+    "homepage": "https://github.com/theluckystrike/extension-analytics",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "test": "jest",
+        "lint": "eslint src --ext .ts",
+        "prepublishOnly": "npm run build && npm test"
+    },
+    "peerDependencies": {
+        "@types/chrome": ">=0.0.200"
+    },
+    "peerDependenciesMeta": {
+        "@types/chrome": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.260",
+        "@types/jest": "^29.5.12",
+        "@typescript-eslint/eslint-plugin": "^6.19.1",
+        "@typescript-eslint/parser": "^6.19.1",
+        "eslint": "^8.56.0",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.2",
+        "typescript": "^5.3.3"
+    }
+}
