@@ -1,51 +1,37 @@
 # extension-analytics
 
-[![npm version](https://img.shields.io/npm/v/extension-analytics)](https://npmjs.com/package/extension-analytics)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![CI Status](https://github.com/theluckystrike/extension-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/theluckystrike/extension-analytics/actions)
-[![Discord](https://img.shields.io/badge/Discord-Zovo-blueviolet.svg?logo=discord)](https://discord.gg/zovo)
-[![Website](https://img.shields.io/badge/Website-zovo.one-blue)](https://zovo.one)
-[![GitHub Stars](https://img.shields.io/github/stars/theluckystrike/extension-analytics?style=social)](https://github.com/theluckystrike/extension-analytics)
+Privacy-first analytics for Chrome extensions. Track usage metrics locally without sending data to third parties.
 
-> Privacy-first analytics for Chrome extensions — track usage metrics locally without sending data to third parties.
-
-Part of the [Zovo](https://zovo.one) family of privacy-first Chrome extensions and developer tools.
+Part of the Zovo family of privacy-first Chrome extensions and developer tools.
 
 ## Overview
 
-`extension-analytics` is a privacy-first analytics library designed specifically for Chrome extensions. Unlike traditional analytics solutions that send data to external servers, this library stores all metrics locally on the user's device, giving them complete control over their data.
+extension-analytics is a privacy-first analytics library designed specifically for Chrome extensions. Unlike traditional analytics solutions that send data to external servers, this library stores all metrics locally on the users device using chrome.storage, giving them complete control over their data.
 
 ## Features
 
-- ✅ **Privacy-First** - All data stays on the user's device
-- ✅ **Zero External Dependencies** - No data sent to third parties
-- ✅ **Local Storage** - Uses chrome.storage for persistent metrics
-- ✅ **TypeScript Support** - Fully typed for better developer experience
-- ✅ **MV3 Compatible** - Works with Manifest V3 extensions
-- ✅ **GDPR Compliant** - No consent banner needed
-- ✅ **Lightweight** - Minimal impact on extension bundle size
+Privacy-First - All data stays on the users device
+Zero External Dependencies - No data sent to third parties
+Local Storage - Uses chrome.storage for persistent metrics
+TypeScript Support - Fully typed for better developer experience
+MV3 Compatible - Works with Manifest V3 extensions
+GDPR Compliant - No consent banner needed
+Lightweight - Minimal impact on extension bundle size
 
 ## Installation
 
-### From npm
+From npm:
 
 ```bash
 npm install extension-analytics
 ```
 
-### From Source
+From Source:
 
 ```bash
-# Clone the repository
 git clone https://github.com/theluckystrike/extension-analytics.git
 cd extension-analytics
-
-# Install dependencies
 npm install
-
-# Build the project
-npm run build
 ```
 
 ## Usage
@@ -53,156 +39,171 @@ npm run build
 ### Basic Setup
 
 ```typescript
-import { Analytics } from 'extension-analytics';
+import { ExtensionAnalytics } from 'extension-analytics';
 
-// Initialize analytics
-const analytics = new Analytics({
-  extensionId: 'your-extension-id',
-  storageKey: 'analytics'
+// Initialize analytics with your extension ID
+const analytics = new ExtensionAnalytics('your-extension-id');
+```
+
+### Configuration
+
+```typescript
+const analytics = new ExtensionAnalytics('your-extension-id', {
+  endpoint: 'https://your-analytics-endpoint.com', // optional custom endpoint
+  anonymizeIP: true,  // default: true
+  respectDNT: true   // default: true - respect Do Not Track browser setting
 });
+```
 
-// Track an event
-await analytics.track('button_click', {
-  buttonId: 'submit-form',
-  page: 'options'
+### Track Custom Events
+
+```typescript
+// Track a custom event with category and action
+await analytics.trackEvent({
+  category: 'user_action',
+  action: 'button_click',
+  label: 'submit-form',  // optional
+  value: 1               // optional
 });
 ```
 
 ### Track Page Views
 
 ```typescript
-// Track a page view
-await analytics.trackPageView('/options', 'Options Page');
+// Track when users view different pages in your extension
+await analytics.trackPageView('/options');
+await analytics.trackPageView('/popup');
 ```
 
-### Track Errors
+### Track Extension Lifecycle
 
 ```typescript
-// Track an error
-await analytics.trackError('api_failure', {
-  endpoint: '/api/data',
-  statusCode: 500
-});
+// Track when users install your extension
+await analytics.trackExtensionInstall();
+
+// Track when users update your extension
+await analytics.trackExtensionUpdate('1.0.0');
 ```
 
-### Get Analytics Data
+### Get Analytics Stats
 
 ```typescript
-// Get all events
-const events = await analytics.getEvents();
+// Retrieve stored analytics data
+const stats = await analytics.getStats();
+console.log(stats.totalEvents);       // Total number of tracked events
+console.log(stats.categories);        // Event counts by category
 
-// Get events for a specific time range
-const recentEvents = await analytics.getEvents({
-  since: Date.now() - 24 * 60 * 60 * 1000 // Last 24 hours
-});
-
-// Get event counts
-const counts = await analytics.getEventCounts();
-```
-
-### Export Data
-
-```typescript
-// Export analytics as JSON
-const export = await analytics.export();
-
-// Clear all analytics data
-await analytics.clear();
+// Example output:
+// {
+//   totalEvents: 42,
+//   categories: {
+//     page_view: 20,
+//     user_action: 15,
+//     lifecycle: 7
+//   }
+// }
 ```
 
 ## API Reference
 
-### Analytics Class
+### ExtensionAnalytics Class
 
-| Method | Description |
-|--------|-------------|
-| `track(event, data)` | Track a custom event |
-| `trackPageView(path, title)` | Track a page view |
-| `trackError(type, data)` | Track an error |
-| `getEvents(options)` | Get tracked events |
-| `getEventCounts()` | Get event counts by type |
-| `export()` | Export all data as JSON |
-| `clear()` | Clear all analytics data |
+#### constructor(extensionId: string, config?: AnalyticsConfig)
 
-### Options
+Creates a new analytics instance.
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `extensionId` | string | Your extension ID |
-| `storageKey` | string | Storage key (default: 'analytics') |
-| `maxEvents` | number | Max events to store (default: 1000) |
+#### trackEvent(event: EventData): Promise<void>
+
+Tracks a custom analytics event.
+
+#### trackPageView(path: string): Promise<void>
+
+Tracks a page view.
+
+#### trackExtensionInstall(): Promise<void>
+
+Tracks an extension installation event.
+
+#### trackExtensionUpdate(previousVersion: string): Promise<void>
+
+Tracks an extension update event.
+
+#### getStats(): Promise<{ totalEvents: number; categories: Record<string, number> }>
+
+Retrieves stored analytics statistics.
+
+### Interfaces
+
+#### EventData
+
+```typescript
+interface EventData {
+  category: string;   // Event category (e.g., 'user_action', 'page_view')
+  action: string;    // Event action (e.g., 'button_click', '/options')
+  label?: string;    // Optional event label
+  value?: number;    // Optional numeric value
+}
+```
+
+#### AnalyticsConfig
+
+```typescript
+interface AnalyticsConfig {
+  endpoint?: string;       // Optional analytics endpoint URL
+  anonymizeIP?: boolean;   // Anonymize IP addresses (default: true)
+  respectDNT?: boolean;    // Respect Do Not Track (default: true)
+}
+```
 
 ## Privacy
 
 This library is designed with privacy as the top priority:
 
-- **No External Servers** - All data is stored locally using chrome.storage
-- **No User Tracking** - No unique identifiers or fingerprinting
-- **No Cookies** - Doesn't use any cookie-based tracking
-- **GDPR Compliant** - No need for consent banners
-- **User Control** - Users can view and delete their data
-
-## Related Packages
-
-This package is part of the Zovo extension analytics ecosystem:
-
-- [extension-analytics-dashboard](https://github.com/theluckystrike/extension-analytics-dashboard) - Visual dashboard for analytics
-- [extension-analytics-export](https://github.com/theluckystrike/extension-analytics-export) - Export analytics to file
+No External Servers - All data is stored locally using chrome.storage
+No User Tracking - No unique identifiers or fingerprinting
+No Cookies - Does not use any cookie-based tracking
+GDPR Compliant - No need for consent banners
+User Control - Users can view and delete their data through Chrome storage
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome. Please follow these steps:
 
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/analytics-improvement`
-3. **Make** your changes
-4. **Test** your changes: `npm test`
-5. **Commit** your changes: `git commit -m 'Add new feature'`
-6. **Push** to the branch: `git push origin feature/analytics-improvement`
-7. **Submit** a Pull Request
+1. Fork the repository
+2. Create a feature branch: git checkout -b feature/your-feature
+3. Make your changes
+4. Test your changes: npm test
+5. Commit your changes: git commit -m 'Add new feature'
+6. Push to the branch: git push origin feature/your-feature
+7. Submit a Pull Request
 
-### Development Setup
+## Development Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/theluckystrike/extension-analytics.git
 cd extension-analytics
-
-# Install dependencies
 npm install
-
-# Run tests
 npm test
-
-# Build
 npm run build
 ```
 
-## Built by Zovo
+## Related Packages
 
-Part of the [Zovo](https://zovo.one) developer tools family — privacy-first Chrome extensions built by developers, for developers.
+extension-analytics-dashboard - Visual dashboard for analytics
+extension-analytics-export - Export analytics to file
 
-## See Also
+## About
 
-### Related Zovo Repositories
-
-- [zovo-extension-template](https://github.com/theluckystrike/zovo-extension-template) - Boilerplate for building privacy-first Chrome extensions
-- [zovo-types-webext](https://github.com/theluckystrike/zovo-types-webext) - Comprehensive TypeScript type definitions for browser extensions
-- [zovo-permissions-scanner](https://github.com/theluckystrike/zovo-permissions-scanner) - Privacy scanner for Chrome extensions
-- [chrome-storage-plus](https://github.com/theluckystrike/chrome-storage-plus) - Type-safe storage wrapper
-
-### Zovo Chrome Extensions
-
-- [Zovo Tab Manager](https://chrome.google.com/webstore/detail/zovo-tab-manager) - Manage tabs efficiently
-- [Zovo Focus](https://chrome.google.com/webstore/detail/zovo-focus) - Block distractions
-- [Zovo Permissions Scanner](https://chrome.google.com/webstore/detail/zovo-permissions-scanner) - Check extension privacy grades
-
-Visit [zovo.one](https://zovo.one) for more information.
+extension-analytics is maintained by theluckystrike and is part of the Zovo developer tools family at zovo.one.
 
 ## License
 
-MIT - [Zovo](https://zovo.one)
+MIT License
 
----
+Copyright (c) 2025 theluckystrike
 
-*Built by developers, for developers. No compromises on privacy.*
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
